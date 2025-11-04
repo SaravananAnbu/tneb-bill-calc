@@ -7,23 +7,19 @@ type DomesticType = "single" | "submeters";
 
 interface BillDetails {
   energyCharge: number;
-  fixedCharge: number;
-  subtotal: number;
-  tax: number;
   total: number;
 }
 
-interface SubmeterBillDetails extends BillDetails {
+interface SubmeterBillDetails {
   meterName: string;
   units: number;
+  energyCharge: number;
+  total: number;
 }
 
 interface SubmetersTotalBillDetails {
   meters: SubmeterBillDetails[];
   totalEnergyCharge: number;
-  totalFixedCharge: number;
-  subtotal: number;
-  tax: number;
   total: number;
 }
 
@@ -108,10 +104,7 @@ const COMMERCIAL_SLABS = [
   { limit: Infinity, rate: 9.0 }, // Above 500 units
 ];
 
-const FIXED_CHARGES = {
-  domestic: 20,
-  commercial: 50,
-};
+
 
 function calculateDomesticBill(units: number, freeUnits: number = 100) {
   // Find the appropriate tier based on total units
@@ -168,16 +161,10 @@ function calculateBill(units: number, type: UsageType) {
       ? calculateDomesticBill(units)
       : calculateCommercialBill(units);
 
-  const fixedCharge = FIXED_CHARGES[type];
-  const subtotal = energyCharge + fixedCharge;
-  const tax = subtotal * 0.02; // 2% electricity duty
-  const total = subtotal + tax;
+  const total = energyCharge;
 
   return {
     energyCharge,
-    fixedCharge,
-    subtotal,
-    tax,
     total,
   };
 }
@@ -201,53 +188,35 @@ function calculateSubmetersBill(
 
   // Calculate main meter bill
   const mainEnergyCharge = calculateDomesticBill(mainUnits, freeUnitsPerMeter);
-  const mainFixedCharge = FIXED_CHARGES.domestic;
-  const mainSubtotal = mainEnergyCharge + mainFixedCharge;
-  const mainTax = mainSubtotal * 0.02;
-  const mainTotal = mainSubtotal + mainTax;
+  const mainTotal = mainEnergyCharge;
 
   meters.push({
     meterName: "Main Meter",
     units: mainUnits,
     energyCharge: mainEnergyCharge,
-    fixedCharge: mainFixedCharge,
-    subtotal: mainSubtotal,
-    tax: mainTax,
     total: mainTotal,
   });
 
   // Calculate each submeter bill
   submeterUnits.forEach((units, index) => {
     const energyCharge = calculateDomesticBill(units, freeUnitsPerMeter);
-    const fixedCharge = FIXED_CHARGES.domestic;
-    const subtotal = energyCharge + fixedCharge;
-    const tax = subtotal * 0.02;
-    const total = subtotal + tax;
+    const total = energyCharge;
 
     meters.push({
       meterName: `Submeter ${index + 1}`,
       units: units,
       energyCharge,
-      fixedCharge,
-      subtotal,
-      tax,
       total,
     });
   });
 
   // Calculate totals
   const totalEnergyCharge = meters.reduce((sum, m) => sum + m.energyCharge, 0);
-  const totalFixedCharge = meters.reduce((sum, m) => sum + m.fixedCharge, 0);
-  const totalSubtotal = meters.reduce((sum, m) => sum + m.subtotal, 0);
-  const totalTax = meters.reduce((sum, m) => sum + m.tax, 0);
   const total = meters.reduce((sum, m) => sum + m.total, 0);
 
   return {
     meters,
     totalEnergyCharge,
-    totalFixedCharge,
-    subtotal: totalSubtotal,
-    tax: totalTax,
     total,
   };
 }
@@ -263,6 +232,26 @@ export default function Home() {
   const [mainMeterUnits, setMainMeterUnits] = useState<string>("");
   const [submeterUnits, setSubmeterUnits] = useState<string[]>([""]); 
   const [submetersBillDetails, setSubmetersBillDetails] = useState<SubmetersTotalBillDetails | null>(null);
+
+  // JSON-LD structured data for SEO
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebApplication",
+    name: "TNEB Bill Calculator",
+    description: "Calculate your Tamil Nadu Electricity Board (TNEB) bill for domestic and commercial usage",
+    url: "https://tneb-calc.netlify.app",
+    applicationCategory: "UtilityApplication",
+    operatingSystem: "Web",
+    offers: {
+      "@type": "Offer",
+      price: "0",
+      priceCurrency: "INR",
+    },
+    provider: {
+      "@type": "Organization",
+      name: "TNEB Bill Calculator",
+    },
+  };
 
   const handleCalculate = () => {
     const unitsNumber = parseFloat(units);
@@ -298,18 +287,23 @@ export default function Home() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-3xl mx-auto">
-        <div className="text-center mb-8">
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-3xl mx-auto">
+          <div className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             TNEB Bill Calculator
           </h1>
           <p className="text-gray-600">
             Calculate your Tamil Nadu Electricity Board bill
           </p>
-        </div>
+          </div>
 
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Main Tabs - Commented Commercial for now */}
           <div className="flex border-b border-gray-200">
             <button
@@ -411,8 +405,6 @@ export default function Home() {
                     <p>• 601-800 units: ₹9.45/unit</p>
                     <p>• 801-1000 units: ₹10.50/unit</p>
                     <p>• Above 1000 units: ₹11.55/unit</p>
-                    <p>• Fixed Charge: ₹20.00</p>
-                    <p className="mt-2">• Electricity Duty: 2%</p>
                   </div>
                 </div>
 
@@ -444,24 +436,6 @@ export default function Home() {
                         <span>Energy Charge ({units} units)</span>
                         <span className="font-medium">
                           ₹{billDetails.energyCharge.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-gray-700">
-                        <span>Fixed Charge</span>
-                        <span className="font-medium">
-                          ₹{billDetails.fixedCharge.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-gray-700">
-                        <span>Subtotal</span>
-                        <span className="font-medium">
-                          ₹{billDetails.subtotal.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-gray-700">
-                        <span>Electricity Duty (2%)</span>
-                        <span className="font-medium">
-                          ₹{billDetails.tax.toFixed(2)}
                         </span>
                       </div>
                       <div className="flex justify-between text-xl font-bold text-gray-900 pt-3 border-t border-gray-300">
@@ -548,8 +522,6 @@ export default function Home() {
                     <p>• The 100 free units are divided equally among all meters (main + submeters)</p>
                     <p>• With {numSubmeters} submeter{numSubmeters > 1 ? 's' : ''}, each meter gets {(100 / (numSubmeters + 1)).toFixed(2)} free units</p>
                     <p>• Each meter is billed separately based on its consumption</p>
-                    <p>• Fixed Charge: ₹20.00 per meter</p>
-                    <p className="mt-2">• Electricity Duty: 2%</p>
                   </div>
                 </div>
 
@@ -593,24 +565,6 @@ export default function Home() {
                               ₹{meter.energyCharge.toFixed(2)}
                             </span>
                           </div>
-                          <div className="flex justify-between text-gray-700">
-                            <span>Fixed Charge</span>
-                            <span className="font-medium">
-                              ₹{meter.fixedCharge.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-gray-700">
-                            <span>Subtotal</span>
-                            <span className="font-medium">
-                              ₹{meter.subtotal.toFixed(2)}
-                            </span>
-                          </div>
-                          <div className="flex justify-between text-gray-700">
-                            <span>Electricity Duty (2%)</span>
-                            <span className="font-medium">
-                              ₹{meter.tax.toFixed(2)}
-                            </span>
-                          </div>
                           <div className="flex justify-between font-bold text-gray-900 pt-2 border-t border-gray-300">
                             <span>Total</span>
                             <span className="text-blue-600">
@@ -630,24 +584,6 @@ export default function Home() {
                           <span>Total Energy Charge</span>
                           <span className="font-medium">
                             ₹{submetersBillDetails.totalEnergyCharge.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-blue-800">
-                          <span>Total Fixed Charge</span>
-                          <span className="font-medium">
-                            ₹{submetersBillDetails.totalFixedCharge.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-blue-800">
-                          <span>Subtotal</span>
-                          <span className="font-medium">
-                            ₹{submetersBillDetails.subtotal.toFixed(2)}
-                          </span>
-                        </div>
-                        <div className="flex justify-between text-blue-800">
-                          <span>Total Electricity Duty (2%)</span>
-                          <span className="font-medium">
-                            ₹{submetersBillDetails.tax.toFixed(2)}
                           </span>
                         </div>
                         <div className="flex justify-between text-xl font-bold text-blue-900 pt-3 border-t border-blue-300">
@@ -693,8 +629,6 @@ export default function Home() {
                     <p>• 0-100 units: ₹5.50/unit</p>
                     <p>• 101-500 units: ₹7.00/unit</p>
                     <p>• Above 500 units: ₹9.00/unit</p>
-                    <p>• Fixed Charge: ₹50.00</p>
-                    <p className="mt-2">• Electricity Duty: 2%</p>
                   </div>
                 </div>
 
@@ -728,24 +662,6 @@ export default function Home() {
                           ₹{billDetails.energyCharge.toFixed(2)}
                         </span>
                       </div>
-                      <div className="flex justify-between text-gray-700">
-                        <span>Fixed Charge</span>
-                        <span className="font-medium">
-                          ₹{billDetails.fixedCharge.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-gray-700">
-                        <span>Subtotal</span>
-                        <span className="font-medium">
-                          ₹{billDetails.subtotal.toFixed(2)}
-                        </span>
-                      </div>
-                      <div className="flex justify-between text-gray-700">
-                        <span>Electricity Duty (2%)</span>
-                        <span className="font-medium">
-                          ₹{billDetails.tax.toFixed(2)}
-                        </span>
-                      </div>
                       <div className="flex justify-between text-xl font-bold text-gray-900 pt-3 border-t border-gray-300">
                         <span>Total Amount</span>
                         <span className="text-blue-600">
@@ -758,10 +674,10 @@ export default function Home() {
               </>
             )}
           </div>
-        </div>
+          </div>
 
-        {/* Footer */}
-        <div className="text-center mt-8 text-gray-600 text-sm">
+          {/* Footer */}
+          <div className="text-center mt-8 text-gray-600 text-sm">
           <p>
             Note: Rates are approximate and based on general TNEB tariff
             structure.
@@ -770,8 +686,18 @@ export default function Home() {
             Actual bills may vary based on specific location and additional
             charges.
           </p>
+          <div className="mt-4 flex justify-center gap-4">
+            <a href="/terms" className="text-blue-600 hover:text-blue-800 underline">
+              Terms of Service
+            </a>
+            <span>•</span>
+            <a href="/privacy" className="text-blue-600 hover:text-blue-800 underline">
+              Privacy Policy
+            </a>
+          </div>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }

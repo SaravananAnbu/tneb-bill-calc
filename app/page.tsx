@@ -4,6 +4,14 @@ import { useState } from "react";
 
 type UsageType = "domestic" | "commercial";
 
+interface BillDetails {
+  energyCharge: number;
+  fixedCharge: number;
+  subtotal: number;
+  tax: number;
+  total: number;
+}
+
 // TNEB Tariff Rates (as per latest available rates)
 const DOMESTIC_SLABS = [
   { limit: 100, rate: 0 }, // First 100 units free
@@ -65,7 +73,7 @@ function calculateBill(units: number, type: UsageType) {
 export default function Home() {
   const [activeTab, setActiveTab] = useState<UsageType>("domestic");
   const [units, setUnits] = useState<string>("");
-  const [billDetails, setBillDetails] = useState<any>(null);
+  const [billDetails, setBillDetails] = useState<BillDetails | null>(null);
 
   const handleCalculate = () => {
     const unitsNumber = parseFloat(units);

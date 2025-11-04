@@ -190,10 +190,8 @@ function calculateSubmetersBill(
     return null;
   }
 
-  for (const units of submeterUnits) {
-    if (units < 0 || isNaN(units)) {
-      return null;
-    }
+  if (submeterUnits.some((units) => units < 0 || isNaN(units))) {
+    return null;
   }
 
   const totalMeters = 1 + submeterUnits.length; // Main + submeters

@@ -32,7 +32,7 @@ A modern web application to calculate Tamil Nadu Electricity Board (TNEB) bills 
 
 ### Prerequisites
 
-- Node.js 18.x or higher
+- Node.js 20.x or higher (LTS recommended)
 - npm or yarn package manager
 
 ### Installation
@@ -66,7 +66,7 @@ npm start
 
 - **Framework**: Next.js 16 (with App Router)
 - **Language**: TypeScript
-- **Styling**: Tailwind CSS 4
+- **Styling**: Tailwind CSS 3
 - **Font**: Ubuntu (Google Fonts)
 - **Build Tool**: Turbopack
 

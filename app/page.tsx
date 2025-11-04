@@ -13,11 +13,78 @@ interface BillDetails {
 }
 
 // TNEB Tariff Rates (as per latest available rates)
-const DOMESTIC_SLABS = [
-  { limit: 100, rate: 0 }, // First 100 units free
-  { limit: 200, rate: 2.5 }, // 101-200 units
-  { limit: 500, rate: 3.0 }, // 201-500 units
-  { limit: Infinity, rate: 5.0 }, // Above 500 units
+// Domestic rates based on total consumption tier
+const DOMESTIC_RATES = [
+  {
+    maxUnits: 100,
+    slabs: [{ from: 1, to: 100, rate: 0.0 }],
+  },
+  {
+    maxUnits: 200,
+    slabs: [
+      { from: 1, to: 100, rate: 0.0 },
+      { from: 101, to: 200, rate: 2.35 },
+    ],
+  },
+  {
+    maxUnits: 400,
+    slabs: [
+      { from: 1, to: 100, rate: 0.0 },
+      { from: 101, to: 200, rate: 2.35 },
+      { from: 201, to: 400, rate: 4.7 },
+    ],
+  },
+  {
+    maxUnits: 500,
+    slabs: [
+      { from: 1, to: 100, rate: 0.0 },
+      { from: 101, to: 200, rate: 2.35 },
+      { from: 201, to: 400, rate: 4.7 },
+      { from: 401, to: 500, rate: 6.3 },
+    ],
+  },
+  {
+    maxUnits: 600,
+    slabs: [
+      { from: 1, to: 100, rate: 0.0 },
+      { from: 101, to: 400, rate: 4.7 },
+      { from: 401, to: 500, rate: 6.3 },
+      { from: 501, to: 600, rate: 8.4 },
+    ],
+  },
+  {
+    maxUnits: 800,
+    slabs: [
+      { from: 1, to: 100, rate: 0.0 },
+      { from: 101, to: 400, rate: 4.7 },
+      { from: 401, to: 500, rate: 6.3 },
+      { from: 501, to: 600, rate: 8.4 },
+      { from: 601, to: 800, rate: 9.45 },
+    ],
+  },
+  {
+    maxUnits: 1000,
+    slabs: [
+      { from: 1, to: 100, rate: 0.0 },
+      { from: 101, to: 400, rate: 4.7 },
+      { from: 401, to: 500, rate: 6.3 },
+      { from: 501, to: 600, rate: 8.4 },
+      { from: 601, to: 800, rate: 9.45 },
+      { from: 801, to: 1000, rate: 10.5 },
+    ],
+  },
+  {
+    maxUnits: Infinity,
+    slabs: [
+      { from: 1, to: 100, rate: 0.0 },
+      { from: 101, to: 400, rate: 4.7 },
+      { from: 401, to: 500, rate: 6.3 },
+      { from: 501, to: 600, rate: 8.4 },
+      { from: 601, to: 800, rate: 9.45 },
+      { from: 801, to: 1000, rate: 10.5 },
+      { from: 1001, to: Infinity, rate: 11.55 },
+    ],
+  },
 ];
 
 const COMMERCIAL_SLABS = [
@@ -31,17 +98,28 @@ const FIXED_CHARGES = {
   commercial: 50,
 };
 
-function calculateBill(units: number, type: UsageType) {
-  if (units <= 0 || isNaN(units)) {
-    return null;
+function calculateDomesticBill(units: number) {
+  // Find the appropriate tier based on total units
+  const tier = DOMESTIC_RATES.find((t) => units <= t.maxUnits);
+  if (!tier) return 0;
+
+  let totalCharge = 0;
+  for (const slab of tier.slabs) {
+    const unitsInSlab = Math.min(units, slab.to) - Math.max(0, slab.from - 1);
+    if (unitsInSlab > 0) {
+      totalCharge += unitsInSlab * slab.rate;
+    }
   }
 
-  const slabs = type === "domestic" ? DOMESTIC_SLABS : COMMERCIAL_SLABS;
+  return totalCharge;
+}
+
+function calculateCommercialBill(units: number) {
   let remainingUnits = units;
   let totalCharge = 0;
   let previousLimit = 0;
 
-  for (const slab of slabs) {
+  for (const slab of COMMERCIAL_SLABS) {
     const unitsInThisSlab = Math.min(
       remainingUnits,
       slab.limit - previousLimit
@@ -56,13 +134,26 @@ function calculateBill(units: number, type: UsageType) {
     previousLimit = slab.limit;
   }
 
+  return totalCharge;
+}
+
+function calculateBill(units: number, type: UsageType) {
+  if (units <= 0 || isNaN(units)) {
+    return null;
+  }
+
+  const energyCharge =
+    type === "domestic"
+      ? calculateDomesticBill(units)
+      : calculateCommercialBill(units);
+
   const fixedCharge = FIXED_CHARGES[type];
-  const subtotal = totalCharge + fixedCharge;
+  const subtotal = energyCharge + fixedCharge;
   const tax = subtotal * 0.02; // 2% electricity duty
   const total = subtotal + tax;
 
   return {
-    energyCharge: totalCharge,
+    energyCharge,
     fixedCharge,
     subtotal,
     tax,
@@ -159,10 +250,14 @@ export default function Home() {
               <div className="text-sm text-blue-800 space-y-1">
                 {activeTab === "domestic" ? (
                   <>
-                    <p>• 0-100 units: ₹0.00/unit (Free)</p>
-                    <p>• 101-200 units: ₹2.50/unit</p>
-                    <p>• 201-500 units: ₹3.00/unit</p>
-                    <p>• Above 500 units: ₹5.00/unit</p>
+                    <p>• 0-100 units: ₹0.00/unit (Free with subsidy)</p>
+                    <p>• 101-200 units: ₹2.35/unit</p>
+                    <p>• 201-400 units: ₹4.70/unit</p>
+                    <p>• 401-500 units: ₹6.30/unit</p>
+                    <p>• 501-600 units: ₹8.40/unit</p>
+                    <p>• 601-800 units: ₹9.45/unit</p>
+                    <p>• 801-1000 units: ₹10.50/unit</p>
+                    <p>• Above 1000 units: ₹11.55/unit</p>
                     <p>• Fixed Charge: ₹20.00</p>
                   </>
                 ) : (

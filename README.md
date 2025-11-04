@@ -14,12 +14,20 @@ A modern web application to calculate Tamil Nadu Electricity Board (TNEB) bills 
 ## Tariff Structure
 
 ### Domestic Rates
-- 0-100 units: ₹0.00/unit (Free)
-- 101-200 units: ₹2.50/unit
-- 201-500 units: ₹3.00/unit
-- Above 500 units: ₹5.00/unit
+The domestic tariff structure includes subsidies that reduce the effective unit cost based on total consumption:
+
+- 0-100 units: ₹0.00/unit (Free with subsidy)
+- 101-200 units: ₹2.35/unit
+- 201-400 units: ₹4.70/unit
+- 401-500 units: ₹6.30/unit
+- 501-600 units: ₹8.40/unit
+- 601-800 units: ₹9.45/unit
+- 801-1000 units: ₹10.50/unit
+- Above 1000 units: ₹11.55/unit
 - Fixed Charge: ₹20.00
 - Electricity Duty: 2%
+
+**Note:** The rates are applied based on consumption tiers. Different rate structures apply depending on your total monthly consumption.
 
 ### Commercial Rates
 - 0-100 units: ₹5.50/unit

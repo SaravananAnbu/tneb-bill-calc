@@ -33,20 +33,11 @@ export const metadata: Metadata = {
     siteName: "TNEB Bill Calculator",
     title: "TNEB Bill Calculator - Calculate Tamil Nadu Electricity Board Bill",
     description: "Free TNEB electricity bill calculator for Tamil Nadu. Calculate domestic and commercial electricity bills based on current TNEB tariff rates.",
-    images: [
-      {
-        url: "/og-image.png",
-        width: 1200,
-        height: 630,
-        alt: "TNEB Bill Calculator",
-      },
-    ],
   },
   twitter: {
     card: "summary_large_image",
     title: "TNEB Bill Calculator - Calculate Tamil Nadu Electricity Board Bill",
     description: "Free TNEB electricity bill calculator for Tamil Nadu. Calculate domestic and commercial electricity bills.",
-    images: ["/og-image.png"],
   },
   robots: {
     index: true,
@@ -59,9 +50,10 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  verification: {
-    google: "google-site-verification-code",
-  },
+  // Add Google Search Console verification code here when available
+  // verification: {
+  //   google: "your-verification-code",
+  // },
 };
 
 export default function RootLayout({
@@ -72,9 +64,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        <link rel="manifest" href="/site.webmanifest" />
         <meta name="theme-color" content="#2563eb" />
       </head>
       <body className="antialiased">

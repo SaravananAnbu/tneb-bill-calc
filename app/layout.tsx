@@ -67,7 +67,8 @@ export const metadata: Metadata = {
     title: "TNEB Bill Calculator - Calculate Tamil Nadu Electricity Board Bill",
     description: "Free TNEB electricity bill calculator for Tamil Nadu. Calculate domestic and commercial electricity bills.",
     images: ["/og-image.png"],
-    creator: "@tnebbillcalc",
+    // Update with actual Twitter handle once account is created
+    // creator: "@tnebbillcalc",
   },
   robots: {
     index: true,

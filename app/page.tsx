@@ -329,12 +329,6 @@ export default function Home() {
         name: "Home",
         item: "https://tneb-calc.netlify.app",
       },
-      {
-        "@type": "ListItem",
-        position: 2,
-        name: "TNEB Bill Calculator",
-        item: "https://tneb-calc.netlify.app",
-      },
     ],
   };
 
@@ -494,9 +488,7 @@ export default function Home() {
                     className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent outline-none transition"
                     min="0"
                     step="1"
-                    aria-describedby="units-help"
                   />
-                  <p id="units-help" className="sr-only">Enter the number of electricity units consumed</p>
                 </div>
 
                 {/* Tariff Information */}

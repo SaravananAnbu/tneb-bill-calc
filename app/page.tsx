@@ -242,6 +242,7 @@ export default function Home() {
     url: "https://tneb-calc.netlify.app",
     applicationCategory: "UtilityApplication",
     operatingSystem: "Web",
+    browserRequirements: "Requires JavaScript. Requires HTML5.",
     offers: {
       "@type": "Offer",
       price: "0",
@@ -250,7 +251,85 @@ export default function Home() {
     provider: {
       "@type": "Organization",
       name: "TNEB Bill Calculator",
+      url: "https://tneb-calc.netlify.app",
     },
+    audience: {
+      "@type": "Audience",
+      geographicArea: {
+        "@type": "State",
+        name: "Tamil Nadu",
+        containedInPlace: {
+          "@type": "Country",
+          name: "India",
+        },
+      },
+    },
+    inLanguage: "en-IN",
+    potentialAction: {
+      "@type": "UseAction",
+      target: {
+        "@type": "EntryPoint",
+        urlTemplate: "https://tneb-calc.netlify.app",
+        actionPlatform: [
+          "http://schema.org/DesktopWebPlatform",
+          "http://schema.org/MobileWebPlatform",
+        ],
+      },
+    },
+  };
+
+  // FAQ structured data
+  const faqJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    mainEntity: [
+      {
+        "@type": "Question",
+        name: "How to calculate TNEB bill?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "To calculate your TNEB bill, enter your electricity units consumed in the calculator. The bill is calculated based on slab rates where 0-100 units are free for domestic users, and higher slabs have progressive rates.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "What are the current TNEB tariff rates?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "Current TNEB domestic tariff rates are: 0-100 units free, 101-200 units at ₹2.35/unit, 201-400 units at ₹4.70/unit, 401-500 units at ₹6.30/unit, 501-600 units at ₹8.40/unit, 601-800 units at ₹9.45/unit, 801-1000 units at ₹10.50/unit, and above 1000 units at ₹11.55/unit.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "How does submeter billing work in TNEB?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "In submeter billing, the 100 free units are divided equally among all meters (main meter + submeters). Each meter is then billed separately based on its consumption using the TNEB slab rates.",
+        },
+      },
+      {
+        "@type": "Question",
+        name: "Is this TNEB calculator accurate?",
+        acceptedAnswer: {
+          "@type": "Answer",
+          text: "This calculator provides estimates based on current TNEB tariff rates. Actual bills may vary based on location-specific charges, meter reading variations, and additional fees.",
+        },
+      },
+    ],
+  };
+
+  // Breadcrumb structured data
+  const breadcrumbJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: [
+      {
+        "@type": "ListItem",
+        position: 1,
+        name: "Home",
+        item: "https://tneb-calc.netlify.app",
+      },
+    ],
   };
 
   const handleCalculate = () => {
@@ -292,25 +371,36 @@ export default function Home() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
+      />
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-8">
+          <header className="text-center mb-8">
           <h1 className="text-4xl font-bold text-gray-900 mb-2">
             TNEB Bill Calculator
           </h1>
           <p className="text-gray-600">
             Calculate your Tamil Nadu Electricity Board bill
           </p>
-          </div>
+          </header>
 
-          <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+          <main className="bg-white rounded-2xl shadow-xl overflow-hidden">
           {/* Main Tabs - Commented Commercial for now */}
-          <div className="flex border-b border-gray-200">
+          <nav className="flex border-b border-gray-200" role="tablist" aria-label="Calculator Type">
             <button
               onClick={() => {
                 setActiveTab("domestic");
                 handleReset();
               }}
+              role="tab"
+              aria-selected={activeTab === "domestic"}
+              aria-controls="domestic-panel"
               className={`flex-1 py-4 px-6 text-center font-medium transition-colors ${
                 activeTab === "domestic"
                   ? "bg-blue-600 text-white"
@@ -325,6 +415,9 @@ export default function Home() {
                 setActiveTab("commercial");
                 handleReset();
               }}
+              role="tab"
+              aria-selected={activeTab === "commercial"}
+              aria-controls="commercial-panel"
               className={`flex-1 py-4 px-6 text-center font-medium transition-colors ${
                 activeTab === "commercial"
                   ? "bg-blue-600 text-white"
@@ -334,16 +427,19 @@ export default function Home() {
               Commercial
             </button>
             */}
-          </div>
+          </nav>
 
           {/* Domestic Sub-tabs */}
           {activeTab === "domestic" && (
-            <div className="flex border-b border-gray-200 bg-gray-50">
+            <nav className="flex border-b border-gray-200 bg-gray-50" role="tablist" aria-label="Meter Type">
               <button
                 onClick={() => {
                   setDomesticType("single");
                   handleReset();
                 }}
+                role="tab"
+                aria-selected={domesticType === "single"}
+                aria-controls="single-meter-panel"
                 className={`flex-1 py-3 px-4 text-center text-sm font-medium transition-colors ${
                   domesticType === "single"
                     ? "bg-white text-blue-600 border-b-2 border-blue-600"
@@ -357,6 +453,9 @@ export default function Home() {
                   setDomesticType("submeters");
                   handleReset();
                 }}
+                role="tab"
+                aria-selected={domesticType === "submeters"}
+                aria-controls="submeters-panel"
                 className={`flex-1 py-3 px-4 text-center text-sm font-medium transition-colors ${
                   domesticType === "submeters"
                     ? "bg-white text-blue-600 border-b-2 border-blue-600"
@@ -365,11 +464,11 @@ export default function Home() {
               >
                 With Submeters
               </button>
-            </div>
+            </nav>
           )}
 
           {/* Content */}
-          <div className="p-8">
+          <section className="p-8" id={activeTab === "domestic" ? (domesticType === "single" ? "single-meter-panel" : "submeters-panel") : "commercial-panel"} role="tabpanel">
             {activeTab === "domestic" && domesticType === "single" && (
               <>
                 <div className="mb-6">
@@ -382,6 +481,7 @@ export default function Home() {
                   <input
                     type="number"
                     id="units"
+                    name="units"
                     value={units}
                     onChange={(e) => setUnits(e.target.value)}
                     placeholder="e.g., 250"
@@ -392,21 +492,21 @@ export default function Home() {
                 </div>
 
                 {/* Tariff Information */}
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                  <h3 className="font-semibold text-blue-900 mb-2">
+                <aside className="mb-6 p-4 bg-blue-50 rounded-lg" role="complementary" aria-label="Tariff Rates">
+                  <h2 className="font-semibold text-blue-900 mb-2">
                     Domestic Tariff Rates
-                  </h3>
-                  <div className="text-sm text-blue-800 space-y-1">
-                    <p>• 0-100 units: ₹0.00/unit (Free with subsidy)</p>
-                    <p>• 101-200 units: ₹2.35/unit</p>
-                    <p>• 201-400 units: ₹4.70/unit</p>
-                    <p>• 401-500 units: ₹6.30/unit</p>
-                    <p>• 501-600 units: ₹8.40/unit</p>
-                    <p>• 601-800 units: ₹9.45/unit</p>
-                    <p>• 801-1000 units: ₹10.50/unit</p>
-                    <p>• Above 1000 units: ₹11.55/unit</p>
-                  </div>
-                </div>
+                  </h2>
+                  <ul className="text-sm text-blue-800 space-y-1">
+                    <li>• 0-100 units: ₹0.00/unit (Free with subsidy)</li>
+                    <li>• 101-200 units: ₹2.35/unit</li>
+                    <li>• 201-400 units: ₹4.70/unit</li>
+                    <li>• 401-500 units: ₹6.30/unit</li>
+                    <li>• 501-600 units: ₹8.40/unit</li>
+                    <li>• 601-800 units: ₹9.45/unit</li>
+                    <li>• 801-1000 units: ₹10.50/unit</li>
+                    <li>• Above 1000 units: ₹11.55/unit</li>
+                  </ul>
+                </aside>
 
                 {/* Buttons */}
                 <div className="flex gap-4">
@@ -427,25 +527,25 @@ export default function Home() {
 
                 {/* Bill Details */}
                 {billDetails && (
-                  <div className="mt-8 border-t border-gray-200 pt-6">
+                  <article className="mt-8 border-t border-gray-200 pt-6" aria-label="Bill Calculation Results">
                     <h3 className="text-lg font-semibold text-gray-900 mb-4">
                       Bill Breakdown
                     </h3>
-                    <div className="space-y-3">
+                    <dl className="space-y-3">
                       <div className="flex justify-between text-gray-700">
-                        <span>Energy Charge ({units} units)</span>
-                        <span className="font-medium">
+                        <dt>Energy Charge ({units} units)</dt>
+                        <dd className="font-medium">
                           ₹{billDetails.energyCharge.toFixed(2)}
-                        </span>
+                        </dd>
                       </div>
                       <div className="flex justify-between text-xl font-bold text-gray-900 pt-3 border-t border-gray-300">
-                        <span>Total Amount</span>
-                        <span className="text-blue-600">
+                        <dt>Total Amount</dt>
+                        <dd className="text-blue-600">
                           ₹{billDetails.total.toFixed(2)}
-                        </span>
+                        </dd>
                       </div>
-                    </div>
-                  </div>
+                    </dl>
+                  </article>
                 )}
               </>
             )}
@@ -673,11 +773,11 @@ export default function Home() {
                 )}
               </>
             )}
-          </div>
-          </div>
+          </section>
+          </main>
 
           {/* Footer */}
-          <div className="text-center mt-8 text-gray-600 text-sm">
+          <footer className="text-center mt-8 text-gray-600 text-sm">
           <p>
             Note: Rates are approximate and based on general TNEB tariff
             structure.
@@ -686,16 +786,16 @@ export default function Home() {
             Actual bills may vary based on specific location and additional
             charges.
           </p>
-          <div className="mt-4 flex justify-center gap-4">
+          <nav className="mt-4 flex justify-center gap-4" aria-label="Footer Navigation">
             <a href="/terms" className="text-blue-600 hover:text-blue-800 underline">
               Terms of Service
             </a>
-            <span>•</span>
+            <span aria-hidden="true">•</span>
             <a href="/privacy" className="text-blue-600 hover:text-blue-800 underline">
               Privacy Policy
             </a>
-          </div>
-          </div>
+          </nav>
+          </footer>
         </div>
       </div>
     </>

@@ -2,8 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Terms of Service - TNEB Bill Calculator",
-  description: "Terms of Service for TNEB Bill Calculator",
+  title: "Terms of Service",
+  description: "Terms of Service for TNEB Bill Calculator. Read our terms and conditions for using the Tamil Nadu Electricity Board bill calculator.",
+  openGraph: {
+    title: "Terms of Service - TNEB Bill Calculator",
+    description: "Terms of Service for TNEB Bill Calculator",
+    url: "https://tneb-calc.netlify.app/terms",
+  },
+  alternates: {
+    canonical: "/terms",
+  },
 };
 
 export default function TermsPage() {

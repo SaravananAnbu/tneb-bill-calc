@@ -2,8 +2,16 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy - TNEB Bill Calculator",
-  description: "Privacy Policy for TNEB Bill Calculator",
+  title: "Privacy Policy",
+  description: "Privacy Policy for TNEB Bill Calculator. Learn how we collect, use, and protect your information when you use our electricity bill calculator service.",
+  openGraph: {
+    title: "Privacy Policy - TNEB Bill Calculator",
+    description: "Privacy Policy for TNEB Bill Calculator",
+    url: "https://tneb-calc.netlify.app/privacy",
+  },
+  alternates: {
+    canonical: "/privacy",
+  },
 };
 
 export default function PrivacyPage() {

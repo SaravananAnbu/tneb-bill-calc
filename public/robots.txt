@@ -1,0 +1,10 @@
+# Robots.txt for TNEB Bill Calculator
+# This file is generated dynamically by app/robots.ts
+# but this static version ensures basic crawling rules
+
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /_next/
+
+Sitemap: https://tneb-calc.netlify.app/sitemap.xml

@@ -102,6 +102,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+        <link rel="author" href="/humans.txt" />
       </head>
       <body className="antialiased">
         {children}
